@@ -514,7 +514,7 @@ func main() {
 	var j int
 	var k int
 	for j = 0; j < i; j++ {
-		go fmt.Println(j)
+		go fmt.Println(j, j)
 	}
 	fmt.Println("----")
 	for k = 0; k < i; k++ {
