@@ -1,6 +1,7 @@
 ****包管理****
 - module
     ```
+    https://studygolang.com/articles/5840
     https://www.infoq.cn/article/XyjhJja87y7pvu1iwHZ3
     ```
 
