@@ -283,6 +283,15 @@ func range_test() {
 	}
 }
 
+func slice_test(slice []int) {
+	fmt.Println(slice)
+	fmt.Println(&slice)
+	slice = append(slice, 5, 6, 7, 8)
+	fmt.Println(slice)
+	fmt.Println(&slice)
+
+}
+
 /*------------------- Map -------------------*/
 func map_test() {
 	var countryCapitalMap map[string]string
@@ -486,6 +495,11 @@ func main() {
 
 	fmt.Println("----------------- 结构体测试 -------------------")
 	struct_test()
+
+	fmt.Println("----------------- slice_test -------------------")
+	sli := []int{1, 2, 3}
+	slice_test(sli)
+	fmt.Println(sli)
 
 	fmt.Println("----------------- Range_test -----------------")
 	range_test()
