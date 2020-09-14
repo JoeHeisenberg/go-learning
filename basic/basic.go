@@ -506,6 +506,21 @@ func main() {
 
 	fmt.Println("----------------- Range_test -----------------")
 	range_test()
+	//循环永动机
+	arr := []int{1, 2, 3}
+	for _, v := range arr {
+		arr = append(arr, v)
+	}
+	fmt.Println(arr) //1 2 3 1 2 3
+	//神奇的指针
+	arry := []int{1, 2, 3}
+	newArr := []*int{}
+	for _, v := range arry {
+		newArr = append(newArr, &v) //需改为append(newArr,&arry[i])
+	}
+	for _, v := range newArr {
+		fmt.Println(*v) //3 3 3
+	}
 
 	fmt.Println("----------------- Map_test -------------------")
 	map_test()

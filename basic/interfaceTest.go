@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 /*------------------- 隐式类型转换 -------------------*/
 type TestStruct struct{}
