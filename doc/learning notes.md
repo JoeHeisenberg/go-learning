@@ -24,3 +24,9 @@
   ```
   https://www.bookstack.cn/read/draveness-golang/9e405d643b49d00e.md
   ```
+
+#### 语言比较 ####
+- Go & Java
+  ```
+  https://mp.weixin.qq.com/s/OrE6cOkVfFt09Sd9fkRxig
+  ```
