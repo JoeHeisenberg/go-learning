@@ -1,9 +1,9 @@
 #### 包管理 ####
 - module
-    ```
-    https://studygolang.com/articles/5840
-    https://www.infoq.cn/article/XyjhJja87y7pvu1iwHZ3
-    ```
+ ```
+ https://studygolang.com/articles/5840
+ https://www.infoq.cn/article/XyjhJja87y7pvu1iwHZ3
+ ```
 
 #### etcd相关问题 ####
 - lease TTL
@@ -14,19 +14,10 @@
   ```
   
 #### 并发 ####
-- Goroutine并发调度模型
-  ```
-  https://segmentfault.com/a/1190000015464889
-  ```
+- [Goroutine并发调度模型](https://segmentfault.com/a/1190000015464889)
   
 #### docs ####
-- Go 语言设计与实现
-  ```
-  https://www.bookstack.cn/read/draveness-golang/9e405d643b49d00e.md
-  ```
+- [Go 语言设计与实现](https://www.bookstack.cn/read/draveness-golang/9e405d643b49d00e.md)
 
 #### 语言比较 ####
-- Go & Java
-  ```
-  https://mp.weixin.qq.com/s/OrE6cOkVfFt09Sd9fkRxig
-  ```
+- [Go & Java](https://mp.weixin.qq.com/s/OrE6cOkVfFt09Sd9fkRxig)
