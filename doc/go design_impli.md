@@ -177,8 +177,88 @@
       通过 runtime.fastrand 生成一个随机数帮助我们随机选择一个桶开始遍历。
     - 哈希表遍历的顺序，首先会选出一个正常桶开始遍历，随后遍历对应的所有溢出桶，最后依次按照索引顺序遍历哈希表中其他的桶，直到所有的桶都被遍历完成。
   - select
-    -  
-      
+    - select 关键字能够让 Goroutine 同时等待多个 Channel 的可读或者可写，在多个文件或者 Channel 发生状态改变之前，select 会一直阻塞当前线程或者 Goroutine。
+    - 当 select 中的两个 case 同时被触发时，就会随机选择一个 case 执行。
+    - 以上在select 控制结构中不包含 default 语句时成立，包含default 语句时，不会阻塞当前的 Goroutine。
+    - select内多个case条件同时满足时，随机选择一个执行，避免饥饿产生
+    - 编译器的重写和优化，编译阶段和运行时的优化
+    - select执行过程：
+      - 直接阻塞。
+        ```
+        空的 select 语句会被转换成 runtime.block 函数的调用，直接挂起当前 Goroutine；
+        ```
+      - 单一管道。
+        ```
+        如果 select 语句中只包含一个 case，就会被转换成 if ch == nil { block }; n; 表达式；
+        首先判断操作的 Channel 是不是空的,当 case 中的 Channel 是空指针时，就会直接挂起当前 Goroutine 并永久休眠；然后执行 case 结构中的内容；
+        ```
+      - 非阻塞操作。当 select 中仅包含两个 case，并且其中一个是 default 时，Go 语言的编译器就会认为这是一次非阻塞的收发操作。
+        ``` 
+        如果 select 语句中只包含两个 case 并且其中一个是 default，那么会使用 runtime.selectnbrecv 和 runtime.selectnbsend 非阻塞地执行收发操作；
+        ```
+      - 常见默认流程。将所有的 case 转换成包含 Channel 以及类型等信息的 runtime.scase 结构体；
+        ``` 
+        在默认情况下会通过 runtime.selectgo 函数获取执行 case 的索引，并通过多个 if 语句执行对应 case 中的代码；
+        在编译器已经对 select 语句进行优化之后，Go 语言会在运行时执行编译期间展开的 runtime.selectgo 函数，该函数会按照以下的流程执行：
+        随机生成一个遍历的轮询顺序 pollOrder 并根据 Channel 地址生成锁定顺序 lockOrder；
+        根据 pollOrder 遍历所有的 case 查看是否有可以立刻处理的 Channel；
+        如果存在就直接获取 case 对应的索引并返回；
+        如果不存在就会创建 runtime.sudog 结构体，将当前 Goroutine 加入到所有相关 Channel 的收发队列，并调用 runtime.gopark 挂起当前 Goroutine 等待调度器的唤醒；
+        当调度器唤醒当前 Goroutine 时就会再次按照 lockOrder 遍历所有的 case，从中查找需要被处理的 runtime.sudog 结构对应的索引；select 关键字是 Go 语言特有的控制结构，它的实现原理比较复杂，需要编译器和运行时函数的通力合作。   
+        ```      
+    - 从一个关闭 Channel 中接收数据会直接清除 Channel 中的相关内容；向一个关闭的 Channel 发送数据就会直接 panic 造成程序崩溃：    
+  - defer
+    - defer 会在当前函数或者方法返回之前执行传入的函数。它会经常被用于关闭文件描述符、关闭数据库连接以及解锁资源。
+    - defer使用的两个问题
+      - defer 关键字的调用时机以及多次调用 defer 时执行顺序是如何确定的；
+      - defer 关键字使用传值的方式传递参数时会进行预计算，导致不符合预期的结果；
+    - defer 关键字的实现主要依靠编译器和运行时的协作。
+      - 编译期；
+        将 defer 关键字被转换 runtime.deferproc；
+        在调用 defer 关键字的函数返回之前插入 runtime.deferreturn；
+      - 运行时：
+        runtime.deferproc 会将一个新的 runtime._defer 结构体追加到当前 Goroutine 的链表头；
+        runtime.deferreturn 会从 Goroutine 的链表中取出 runtime._defer 结构并依次执行；
+      - 后调用的 defer 函数会先执行：
+        后调用的 defer 函数会被追加到 Goroutine _defer 链表的最前面；
+        运行 runtime._defer 时是从前到后依次执行；
+      - 函数的参数会被预先计算；
+        调用 runtime.deferproc 函数创建新的延迟调用时就会立刻拷贝函数的参数，参数的计算在调用defer时完成，而不是在方法返回时执行计算；
+  - 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
       
       
       
