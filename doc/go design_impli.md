@@ -176,6 +176,8 @@
     - Go 团队在设计哈希表的遍历时就不想让使用者依赖固定的遍历顺序，所以引入了随机数保证遍历的随机性。
       通过 runtime.fastrand 生成一个随机数帮助我们随机选择一个桶开始遍历。
     - 哈希表遍历的顺序，首先会选出一个正常桶开始遍历，随后遍历对应的所有溢出桶，最后依次按照索引顺序遍历哈希表中其他的桶，直到所有的桶都被遍历完成。
+    - 遍历字符串的过程与数组、切片和哈希表非常相似，只是在遍历时会获取字符串中索引对应的字节并将字节转换成 rune。遍历字符串时拿到的值都是 rune 类型的变量。
+    - range对channel的遍历，循环会使用 <-ch 从管道中取出等待处理的值，这个操作会调用 runtime.chanrecv2 并阻塞当前的协程，直到管道中有返回值。
   - select
     - select 关键字能够让 Goroutine 同时等待多个 Channel 的可读或者可写，在多个文件或者 Channel 发生状态改变之前，select 会一直阻塞当前线程或者 Goroutine。
     - 当 select 中的两个 case 同时被触发时，就会随机选择一个 case 执行。
@@ -224,10 +226,23 @@
         运行 runtime._defer 时是从前到后依次执行；
       - 函数的参数会被预先计算；
         调用 runtime.deferproc 函数创建新的延迟调用时就会立刻拷贝函数的参数，参数的计算在调用defer时完成，而不是在方法返回时执行计算；
-  - 
-
-
-
+  - panic和recover
+    - 程序崩溃和恢复的过程：
+      - 编译器会负责做转换关键字的工作；
+        将 panic 和 recover 分别转换成 runtime.gopanic 和 runtime.gorecover；<br/>
+        将 defer 转换成 deferproc 函数；<br/>
+      - 在调用 defer 的函数末尾调用 deferreturn 函数；
+        在运行过程中遇到 gopanic 方法时，会从 Goroutine 的链表依次取出 _defer 结构体并执行；<br/>
+      - 如果调用延迟执行函数时遇到了 gorecover 就会将 _panic.recovered 标记成 true 并返回 panic 的参数；<br/>
+        在这次调用结束之后，gopanic 会从 _defer 结构体中取出程序计数器 pc 和栈指针 sp 并调用 recovery 函数进行恢复程序；<br/>
+        recovery 会根据传入的 pc 和 sp 跳转回 deferproc；<br/>
+        编译器自动生成的代码会发现 deferproc 的返回值不为 0，这时会跳回 deferreturn 并恢复到正常的执行流程；<br/>
+      - 如果没有遇到 gorecover 就会依次遍历所有的 _defer 结构，并在最后调用 fatalpanic 中止程序、打印 panic 的参数并返回错误码 2；<br/>
+        分析的过程涉及了很多语言底层的知识，源代码阅读起来也比较晦涩，其中充斥着反常规的控制流程，通过程序计数器来回跳转，不过对于我们理解程序的执行流程还是很有帮助。
+  - make和new
+    - make 的作用是初始化内置的数据结构，也就是我们在前面提到的切片、哈希表和 Channel。
+    - new 的作用是根据传入的类型在堆上分配一片内存空间并返回指向这片内存空间的指针。
+- 并发编程
 
 
 
