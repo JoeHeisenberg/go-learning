@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"reflect"
 )
 
 /*
@@ -286,13 +287,36 @@ func range_test() {
 	}
 }
 
-func slice_test(slice []int) {
-	fmt.Println(slice)
-	fmt.Println(&slice)
-	slice = append(slice, 5, 6, 7, 8)
-	fmt.Println(slice)
-	fmt.Println(&slice)
+/*
+Go语言并没有对删除切片元素提供专用的语法或者接口，需要使用切片本身的特性来删除元素。涉及到元素指针的移动。
+对原始切片的增删改操作会改变底层数组，但底层数组的大小不变。
+对原始切片的修改操作，会改变原始切片，但引用不变。
+对原始切片的增删操作，会创建一个新的切片(引用)并返回。
+因此，当业务需要大量、频繁地从一个切片中删除元素时，如果对性能要求较高的话，就需要考虑更换其他的容器了（如双链表等能快速从删除点删除元素）
+*/
+func sliceTest() {
+	arr := [8]int{1, 2, 3, 4, 5, 6, 7}
+	fmt.Printf("len: %d  cap: %d pointer: %p origin arr: %d\n", len(arr), cap(arr), &arr, arr)
+	sli := arr[0:5] //切片的取之长度不能超过数组的长度
+	fmt.Println("origin slice: ", sli)
 
+	sli[0] = 9
+	sliDel := append(sli[:2], sli[3:]...) //从角标[2]处插入，如果插入元素不等于删除元素个数，则插入位置后元素向前/后移动
+	eleAdd := []int{11, 21, 31, 41, 51, 62, 71}
+
+	arrAdded := append(eleAdd)         //创建一个新的slice并返回
+	sliAdded := append(sli, eleAdd...) //在sli切片空间内扩容，对底层数组无感，返回新的切片引用
+
+	fmt.Println("sli Del after: ", sliDel)
+	fmt.Println("sli Added after: ", sliAdded)
+	fmt.Println("arr Added after: ", arrAdded)
+	fmt.Println("origin slice after: ", sli)
+	fmt.Println("origin arr after: ", arr)
+	fmt.Println("eleAddType == arrType ? :", reflect.TypeOf(eleAdd) == reflect.TypeOf(arr))
+	fmt.Println("arrType == arrAddedType ? :", reflect.TypeOf(arr) == reflect.TypeOf(arrAdded))
+	fmt.Println("arrAddedType == sliAddedType ? :", reflect.TypeOf(arrAdded) == reflect.TypeOf(sliAdded))
+	fmt.Println("sliAddedType == sliDelType ? :", reflect.TypeOf(sliAdded) == reflect.TypeOf(sliDel))
+	fmt.Println("sli == sliDel ? :", &sli == &sliDel)
 }
 
 /*------------------- Map -------------------*/
@@ -500,9 +524,7 @@ func main() {
 	struct_test()
 
 	fmt.Println("----------------- slice_test -------------------")
-	sli := []int{1, 2, 3}
-	slice_test(sli)
-	fmt.Println(sli)
+	sliceTest()
 
 	fmt.Println("----------------- Range_test -----------------")
 	range_test()
