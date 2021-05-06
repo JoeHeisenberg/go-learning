@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 /*
 struct test
@@ -39,7 +41,7 @@ type Duck interface {
 type Cat struct{}
 
 func (c Cat) Quack() {} // 使用结构体实现接口
-//func (c *Cat) Quack() {} // 使用结构体指针实现接口
+//func (c *Cat) Quack() {} // 使用结构体指针实现接口，不能共存
 
 /*
 隐式类型转换
